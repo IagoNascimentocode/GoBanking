@@ -11,10 +11,10 @@ func main() {
 
 	database.ConnectDataBase()
 
-	router.GET("/Accounts", services.FindAccounts)
-	router.GET("/Accounts/:id/balance", services.FindAccountsByID)
-	router.GET("/findBalance/:id", services.FindBalanceByID)
-	router.POST("/createAccount", services.CrerateAccounts)
+	router.GET("/accounts", services.FindAccounts)
+	router.POST("/accounts", services.CrerateAccounts)
+	router.GET("/accounts/:id", services.FindAccountsByID)
+	router.GET("/accounts/:id/balance", services.FindBalanceByID)
 
 	router.Run()
 }
