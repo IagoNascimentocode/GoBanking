@@ -6,9 +6,10 @@ import (
 )
 
 func Setup(app *fiber.App) {
+
 	app.Post("/accounts", controllers.CreateAccount)
 	app.Get("/accounts", controllers.FindAccounts)
 	app.Get("/accounts/:id", controllers.FindAccountsByID)
 	app.Get("/accounts/:id/balance", controllers.FindBalanceByID)
-	/* 	app.Post("/login/:cpf/:secret", controllers.Login)  */
+	app.Post("/login/", controllers.Login)
 }
