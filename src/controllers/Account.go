@@ -1,6 +1,10 @@
 package controllers
 
 import (
+	"strconv"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber"
 
 	"gitlab.com/IagoNascimentocode/StoneBanking/src/database"
@@ -92,11 +96,34 @@ func Login(c *fiber.Ctx) {
 		return
 	}
 
+	if account.ID == 0 {
+		c.Status(fiber.StatusNotFound).JSON(fiber.NewError(401, "User not found"))
+	}
+
 	if err := services.CheckPasswordHash(credential.Secret, account.Secret); err {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400, "Password or cpf incorrect compare"))
 		return
 	}
 
-	c.Status(200).JSON(account.Secret)
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Issuer:    strconv.Itoa(int(account.ID)),
+		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	token, err := claims.SignedString([]byte("Secret"))
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.NewError(500, "could not login"))
+	}
+
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	c.Status(200).Send("Success")
 
 }
