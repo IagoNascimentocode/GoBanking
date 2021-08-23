@@ -17,6 +17,7 @@ func ConnectDataBase() {
 	}
 
 	connection.AutoMigrate(&models.Account{})
+	connection.AutoMigrate(&models.Transfer{})
 
 	DB = connection
 }

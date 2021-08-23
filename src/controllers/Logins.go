@@ -8,16 +8,16 @@ import (
 )
 
 func Login(c *fiber.Ctx) {
-	var data map[string]string
 
-	if err := c.BodyParser(&data); err != nil {
+	var credential models.Credential
+	if err := c.BodyParser(&credential); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
 	}
 
-	credential := models.Credentials{
-		Cpf:    data["cpf"],
-		Secret: data["secret"],
+	login := models.Credential{
+		Cpf:    credential.Cpf,
+		Secret: credential.Secret,
 	}
 
 	var account models.Account
@@ -27,7 +27,7 @@ func Login(c *fiber.Ctx) {
 		return
 	}
 
-	if err := database.DB.Where("cpf = ?", credential.Cpf).First(&account).Error; err != nil {
+	if err := database.DB.Where("cpf = ?", login.Cpf).First(&account).Error; err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "Password or cpf incorrect"))
 		return
 	}
@@ -48,6 +48,16 @@ func Login(c *fiber.Ctx) {
 		return
 	}
 
-	c.JSON(token)
+	if err := database.DB.Where("cpf = ?", login.Cpf).First(&account).Update("token", token).Error; err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "token"))
+		return
+	}
 
+	cookie := new(fiber.Cookie)
+	cookie.Name = "jwt"
+	cookie.Value = token
+
+	c.Cookie(cookie)
+
+	c.JSON(token)
 }

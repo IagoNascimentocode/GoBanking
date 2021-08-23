@@ -10,18 +10,18 @@ import (
 
 func CreateAccount(c *fiber.Ctx) {
 
-	var data map[string]string
+	var account_ models.Account
 
-	if err := c.BodyParser(&data); err != nil {
+	if err := c.BodyParser(&account_); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
 	}
 
-	var hash, _ = services.HashPassword(data["secret"])
+	var hash, _ = services.HashPassword(account_.Secret)
 
 	account := models.Account{
-		Name:   data["name"],
-		Cpf:    data["cpf"],
+		Name:   account_.Name,
+		Cpf:    account_.Cpf,
 		Secret: string(hash),
 	}
 

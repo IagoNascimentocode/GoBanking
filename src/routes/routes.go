@@ -10,7 +10,8 @@ func Setup(app *fiber.App) {
 
 	app.Post("/accounts", controllers.CreateAccount)
 	app.Post("/login", controllers.Login)
-	app.Get("/accounts", middlewares.Auth, controllers.FindAccounts)
-	app.Get("/accounts/:id", middlewares.Auth, controllers.FindAccountsByID)
-	app.Get("/accounts/:id/balance", middlewares.Auth, controllers.FindBalanceByID)
+	app.Get("/accounts", middlewares.Authenticate, controllers.FindAccounts)
+	app.Get("/accounts/:id", middlewares.Authenticate, controllers.FindAccountsByID)
+	app.Get("/accounts/:id/balance", middlewares.Authenticate, controllers.FindBalanceByID)
+	app.Get("/trasnfers", middlewares.Authenticate, controllers.Transfers)
 }
