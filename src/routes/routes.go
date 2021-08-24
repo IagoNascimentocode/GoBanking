@@ -13,5 +13,6 @@ func Setup(app *fiber.App) {
 	app.Get("/accounts", middlewares.Authenticate, controllers.FindAccounts)
 	app.Get("/accounts/:id", middlewares.Authenticate, controllers.FindAccountsByID)
 	app.Get("/accounts/:id/balance", middlewares.Authenticate, controllers.FindBalanceByID)
-	app.Get("/trasnfers", middlewares.Authenticate, controllers.Transfers)
+	app.Post("/trasnfers", middlewares.Authenticate, controllers.Transfers)
+	app.Get("/trasnfers", middlewares.Authenticate, controllers.ListUserOperations)
 }
