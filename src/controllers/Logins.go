@@ -21,9 +21,8 @@ func Login(c *fiber.Ctx) {
 	}
 
 	var account models.Account
-
 	if err := c.JSON(&account); err != nil {
-		c.Status(400)
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
 	}
 
@@ -44,12 +43,12 @@ func Login(c *fiber.Ctx) {
 
 	token, err := services.NewJWTServices().GenerateToken(account.ID)
 	if err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(500))
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.NewError(500))
 		return
 	}
 
 	if err := database.DB.Where("cpf = ?", login.Cpf).First(&account).Update("token", token).Error; err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "token"))
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.NewError(500))
 		return
 	}
 
@@ -58,6 +57,5 @@ func Login(c *fiber.Ctx) {
 	cookie.Value = token
 
 	c.Cookie(cookie)
-
 	c.JSON(token)
 }

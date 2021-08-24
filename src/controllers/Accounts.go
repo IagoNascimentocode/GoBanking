@@ -11,7 +11,6 @@ import (
 func CreateAccount(c *fiber.Ctx) {
 
 	var account_ models.Account
-
 	if err := c.BodyParser(&account_); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
@@ -56,7 +55,7 @@ func FindBalanceByID(c *fiber.Ctx) {
 
 	var account models.Account
 	if err := c.JSON(&account); err != nil {
-		c.Status(400)
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
 	}
 

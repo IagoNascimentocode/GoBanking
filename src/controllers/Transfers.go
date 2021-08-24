@@ -16,17 +16,34 @@ func Transfers(c *fiber.Ctx) {
 		return
 	}
 
-	var t models.Transfer
-	if err := c.BodyParser(&t); err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400, "PRoblema com o t"))
+	var transfer models.Transfer
+	if err := c.BodyParser(&transfer); err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
 	}
 
 	accountDestination := models.Transfer{
 		Account_origin_id:      account.ID,
-		Account_destination_id: t.Account_destination_id,
-		Amount:                 t.Amount,
+		Account_destination_id: transfer.Account_destination_id,
+		Amount:                 transfer.Amount,
 	}
+	database.DB.Create(&accountDestination)
+
+	if accountDestination.Amount > account.Balance {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400, "insufficient funds"))
+		return
+	}
+	account.Balance = account.Balance - accountDestination.Amount
+
+	var reciver models.Account
+	if err := database.DB.Where("id = ?", accountDestination.Account_destination_id).First(&reciver).Error; err != nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400, "User does not exist"))
+		return
+	}
+	reciver.Balance = reciver.Balance + accountDestination.Amount
+
+	database.DB.Save(account)
+	database.DB.Save(reciver)
 
 	c.JSON(accountDestination)
 }
