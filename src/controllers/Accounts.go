@@ -59,10 +59,6 @@ func FindAccountsByID(c *fiber.Ctx) {
 func FindBalanceByID(c *fiber.Ctx) {
 
 	var account models.Account
-	if err := c.BodyParser(&account); err != nil {
-		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
-		return
-	}
 
 	if err := database.DB.Where("id = ?", c.Params("id")).First(&account).Error; err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400, "User does not exist"))
