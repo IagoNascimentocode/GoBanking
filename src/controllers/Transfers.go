@@ -27,10 +27,11 @@ func Transfers(c *fiber.Ctx) {
 		Account_destination_id: transfer.Account_destination_id,
 		Amount:                 transfer.Amount,
 	}
+
 	database.DB.Create(&accountDestination)
 
 	if accountDestination.Amount > account.Balance {
-		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "insufficient funds"))
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400, "insufficient funds"))
 		return
 	}
 	account.Balance = account.Balance - accountDestination.Amount

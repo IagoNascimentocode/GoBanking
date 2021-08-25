@@ -16,6 +16,11 @@ func CreateAccount(c *fiber.Ctx) {
 		return
 	}
 
+	if err := database.DB.Where("cpf = ?", account_.Cpf).First(&account_).Error; err == nil {
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "User already exists"))
+		return
+	}
+
 	var hash, _ = services.HashPassword(account_.Secret)
 
 	account := models.Account{
@@ -54,7 +59,7 @@ func FindAccountsByID(c *fiber.Ctx) {
 func FindBalanceByID(c *fiber.Ctx) {
 
 	var account models.Account
-	if err := c.JSON(&account); err != nil {
+	if err := c.BodyParser(&account); err != nil {
 		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(400))
 		return
 	}

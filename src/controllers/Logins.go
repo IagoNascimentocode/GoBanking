@@ -31,13 +31,8 @@ func Login(c *fiber.Ctx) {
 		return
 	}
 
-	if account.ID == 0 {
-		c.Status(fiber.StatusNotFound).JSON(fiber.NewError(401, "User not found"))
-		return
-	}
-
 	if err := services.CheckPasswordHash(credential.Secret, account.Secret); err {
-		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "Password or cpf incorrect compare"))
+		c.Status(fiber.StatusBadRequest).JSON(fiber.NewError(401, "Password or cpf incorrect"))
 		return
 	}
 
@@ -57,5 +52,5 @@ func Login(c *fiber.Ctx) {
 	cookie.Value = token
 
 	c.Cookie(cookie)
-	c.JSON(token)
+	c.Status(200).JSON(token)
 }
